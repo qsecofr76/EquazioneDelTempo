@@ -12,6 +12,7 @@ const state = {
     speedFactor: 0.5,        // Moltiplicatore di velocità dell'animazione
     orbitMode: 'didactic',   // 'didactic' (e=0.25 per fini espositivi) o 'real' (e=0.0167)
     lastTimestamp: 0,        // Per il calcolo del delta time nell'animazione
+    language: 'it',          // Lingua corrente ('it' o 'en')
     
     // Costanti astronomiche
     obliquity: 23.44 * Math.PI / 180, // Inclinazione asse terrestre in radianti
@@ -39,6 +40,168 @@ const months = [
     { name: "Novembre", days: 30 },
     { name: "Dicembre", days: 31 }
 ];
+
+// --- INTERNAZIONALIZZAZIONE (i18n) DIZIONARIO ---
+const translations = {
+    it: {
+        "main-title": "L'Equazione del Tempo",
+        "main-subtitle": "Un viaggio interattivo nella meccanica celeste per comprendere perché i nostri orologi e le meridiane non segnano mai lo stesso tempo durante l'anno.",
+        "slider-label": "Seleziona Giorno dell'Anno",
+        "btn-play": "Avvia",
+        "btn-pause": "Pausa",
+        "date-label": "Calendario:",
+        "speed-label": "Velocità:",
+        "opt-slow": "Lenta",
+        "opt-normal": "Normale",
+        "opt-fast": "Veloce",
+        "opt-astro": "Astronomica",
+        "btn-didactic": "Didattica (e = 0.25)",
+        "btn-real": "Reale (e = 0.017)",
+        "metric-eot": "Equazione del Tempo",
+        "metric-daylen": "Variazione Giorno Solare",
+        "metric-dist": "Distanza Terra-Sole",
+        "metric-dec": "Declinazione Solare",
+        "card1-title": "1. Eccentricità dell'Orbita",
+        "card1-subtitle": "Componente Ellittica (1ª e 2ª Legge di Keplero)",
+        "card1-badge": "Variazione Giorno (Eccentricità)",
+        "card1-hint": "Simulazione Orbitale Interattiva",
+        "card1-explainer": "L'orbita terrestre è un'ellisse con il Sole in uno dei fuochi. Per la <span class=\"highlight-text\">2ª Legge di Keplero</span>, la Terra accelera al perielio (inizio Gennaio) e rallenta all'afelio (inizio Luglio). La velocità orbitale variabile genera una variazione continua dell'angolo percorso al giorno (<span class=\"highlight-text\">velocità angolare</span>), rendendo la durata del giorno solare dovuta all'orbita più lunga in inverno e più corta in estate (onda annuale di max ±8s).",
+        "card2-title": "2. Obliquità dell'Asse",
+        "card2-subtitle": "Componente Geometrica (Proiezione Eclittica)",
+        "card2-badge": "Variazione Giorno (Obliquità)",
+        "card2-explainer": "L'asse terrestre è inclinato di <span class=\"highlight-text\">23.44°</span> rispetto all'eclittica. Il Sole si muove lungo l'eclittica inclinata, ma noi misuriamo il tempo proiettando questo moto sull'equatore celeste. A causa dell'inclinazione, la proiezione corre più velocemente ai solstizi e più lentamente agli equinozi. Questo effetto geometrico produce una variazione della durata del giorno con <span class=\"highlight-text\">periodo semestrale</span> (fino a ±20s).",
+        "card3-title": "3. Curve dell'Equazione del Tempo",
+        "card3-subtitle": "Grafico delle Componenti e della Risultante",
+        "card3-badge": "Valore Totale",
+        "card3-hint": "Trascina o Clicca per cambiare data",
+        "card3-explainer": "Il grafico mostra la decomposizione dell'Equazione del Tempo. La curva <span class=\"highlight-text\" style=\"color: var(--color-ecc)\">azzurra</span> rappresenta l'eccentricità (periodo annuale), la curva <span class=\"highlight-text\" style=\"color: var(--color-obl)\">viola</span> rappresenta l'obliquità (periodo semestrale). La curva <span class=\"highlight-text\" style=\"color: var(--color-eot)\">oro</span> è la loro somma algebrica: l'Equazione del Tempo totale. I quattro zeri avvengono il 15 aprile, 13 giugno, 1 settembre e 25 dicembre.",
+        "card4-title": "4. L'Analemma",
+        "card4-subtitle": "La Figura a Otto nel Cielo",
+        "card4-badge": "Posizione Attuale (X, Y)",
+        "card4-hint": "Mappa del percorso solare annuale",
+        "card4-explainer": "L'analemma è la figura a \"8\" tracciata fotografando il Sole alla stessa ora media ogni giorno dell'anno. L'inclinazione dell'asse solleva e abbassa il Sole nel cielo (asse Y, <span class=\"highlight-text\">Declinazione</span>), mentre l'Equazione del Tempo sposta il Sole in anticipo o in ritardo rispetto all'orario medio (asse X, <span class=\"highlight-text\">Differenza temporale</span>). Il perno stretto in alto corrisponde all'estate boreale, la pancia ampia in basso all'inverno.",
+        "edu-title": "Comprendere la Meccanica dell'Equazione del Tempo",
+        "edu-p1": "Il tempo da noi comunemente utilizzato è il <strong>Tempo Solare Medio</strong>, basato su un Sole fittizio che si muove lungo l'equatore celeste a velocità perfettamente costante, compiendo un giorno di esattamente 24 ore. Tuttavia, la Terra orbita attorno al Sole reale in condizioni non uniformi. Il Sole vero, visto dal nostro pianeta, si muove a velocità variabile e lungo una traiettoria inclinata. La differenza tra il <strong>Tempo Solare Vero</strong> (quello indicato dalle meridiane) e il <strong>Tempo Solare Medio</strong> (quello dei nostri orologi) prende il nome di <strong>Equazione del Tempo (EoT)</strong>:",
+        "edu-formula1": "EoT = Tempo Solare Apparente (Meridiana) - Tempo Solare Medio (Orologio)",
+        "edu-p2": "Questa discrepanza fluttua continuamente durante l'anno, accumulando un anticipo massimo della meridiana di circa <strong>+14 minuti e 15 secondi</strong> (intorno al 3 novembre) e un ritardo massimo di circa <strong>-16 minuti e 25 secondi</strong> (intorno al 12 febbraio). L'EoT è il risultato dell'interazione di due fenomeni indipendenti:",
+        "edu-ecc-title": "La Componente di Eccentricità (Orbita Ellittica)",
+        "edu-ecc-desc": "Secondo la prima legge di Keplero, l'orbita della Terra è un'ellisse. Menurut la seconda legge (legge delle aree), la Terra si muove più velocemente quando è vicina al Sole (perielio, all'inizio di gennaio) e più lentamente quando è lontana (afelio, all'inizio di luglio). Di conseguenza, la velocità con cui il Sole sembra spostarsi nel cielo varia costantemente. Questa componente genera una variazione sinusoidale con periodo di 1 anno e ampiezza di circa ±7.7 minuti.",
+        "edu-obl-title": "La Componente di Obliquità (Inclinazione dell'Asse)",
+        "edu-obl-desc": "L'equatore terrestre è inclinato di 23° 26' rispetto al piano della sua orbita (l'eclittica). Anche se la Terra si muovesse su un'orbita perfettamente circolare a velocità costante, il Sole sembrerebbe muoversi lungo l'eclittica inclinata. Per misurare il tempo, dobbiamo proiettare questo movimento sull'equatore celeste. Geometricamente, agli equinozi il moto del Sole è inclinato e la proiezione corre più lentamente; ai solstizi il moto è parallelo all'equatore e la proiezione corre più velocemente. Questo genera una variazione sinusoidale a frequenza doppia (periodo di 6 mesi) e ampiezza di circa ±9.9 minuti.",
+        "edu-p3": "Sommando queste due componenti, si ottiene la curva asimmetrica caratteristica dell'Equazione del Tempo. La variazione giornaliera dell'EoT determina l'allungamento o l'accorciamento del <strong>giorno solare vero</strong> (il tempo compreso tra due passaggi consecutivi del Sole al meridiano):",
+        "edu-formula2": "Durata Giorno Solare Vero = 24 ore + ΔD(eccentricità) + ΔD(obliquità)",
+        "edu-p4": "A causa di questi effetti combinati, il giorno solare vero non dura quasi mai esattamente 24 ore: nei pressi dei solstizi d'inverno e d'estate, il giorno solare è circa 20-30 secondi più lungo del giorno medio, mentre agli equinozi è circa 20 secondi più corto. Solo integrando giorno dopo giorno queste minuscole variazioni si accumula lo scarto macroscopico espresso dall'Equazione del Tempo.",
+        "footer-credits-text": "Sviluppato da Roberto per Astrofili Ponte di Piave (<a href=\"http://www.astrofilipontedipiave.it\" target=\"_blank\" style=\"color: var(--color-ecc);\">www.astrofilipontedipiave.it</a>)",
+        "footer-links": "<a href=\"#main-title\" id=\"scroll-to-top\">Torna in alto</a> | Scopri di più sull'equazione del tempo e le leggi astronomiche di Keplero."
+    },
+    en: {
+        "main-title": "The Equation of Time",
+        "main-subtitle": "An interactive journey into celestial mechanics to understand why clocks and sundials rarely match throughout the year.",
+        "slider-label": "Select Day of the Year",
+        "btn-play": "Play",
+        "btn-pause": "Pause",
+        "date-label": "Calendar:",
+        "speed-label": "Speed:",
+        "opt-slow": "Slow",
+        "opt-normal": "Normal",
+        "opt-fast": "Fast",
+        "opt-astro": "Astronomical",
+        "btn-didactic": "Didactic (e = 0.25)",
+        "btn-real": "Real (e = 0.017)",
+        "metric-eot": "Equation of Time",
+        "metric-daylen": "Solar Day Variation",
+        "metric-dist": "Earth-Sun Distance",
+        "metric-dec": "Solar Declination",
+        "card1-title": "1. Orbit Eccentricity",
+        "card1-subtitle": "Elliptical Component (Kepler's 1st & 2nd Laws)",
+        "card1-badge": "Day Variation (Eccentricity)",
+        "card1-hint": "Interactive Orbital Simulation",
+        "card1-explainer": "Earth's orbit is an ellipse with the Sun at one of the foci. By <span class=\"highlight-text\">Kepler's 2nd Law</span>, the Earth accelerates at perihelion (early January) and slows down at aphelion (early July). This variable orbital speed generates a continuous change in the daily swept angle (<span class=\"highlight-text\">angular velocity</span>), making the solar day variation due to the orbit longer in winter and shorter in summer (an annual wave of max ±8s).",
+        "card2-title": "2. Axial Obliquity",
+        "card2-subtitle": "Geometric Component (Ecliptic Projection)",
+        "card2-badge": "Day Variation (Obliquity)",
+        "card2-explainer": "Earth's axis is tilted by <span class=\"highlight-text\">23.44°</span> relative to the ecliptic. The Sun moves along this tilted ecliptic, but we measure time by projecting this motion onto the celestial equator. Due to the tilt, the projection runs faster at solstices and slower at equinoxes. This geometric effect produces a day duration variation with a <span class=\"highlight-text\">semi-annual period</span> (up to ±20s).",
+        "card3-title": "3. Equation of Time Curves",
+        "card3-subtitle": "Chart of Components and Resultant",
+        "card3-badge": "Total Value",
+        "card3-hint": "Drag or Click to change date",
+        "card3-explainer": "The chart shows the breakdown of the Equation of Time. The <span class=\"highlight-text\" style=\"color: var(--color-ecc)\">cyan</span> curve represents eccentricity (annual period), the <span class=\"highlight-text\" style=\"color: var(--color-obl)\">purple</span> curve represents obliquity (semi-annual period). The <span class=\"highlight-text\" style=\"color: var(--color-eot)\">gold</span> curve is their algebraic sum: the total Equation of Time. The four zero points occur around April 15, June 13, September 1, and December 25.",
+        "card4-title": "4. The Analemma",
+        "card4-subtitle": "The Figure-Eight in the Sky",
+        "card4-badge": "Current Position (X, Y)",
+        "card4-hint": "Yearly solar path map",
+        "card4-explainer": "The analemma is the figure-8 shape traced by photographing the Sun at the exact same clock time each day of the year. The axial tilt drives the Sun up and down in the sky (Y-axis, <span class=\"highlight-text\">Declination</span>), while the Equation of Time shifts the Sun ahead or behind the mean time (X-axis, <span class=\"highlight-text\">Time difference</span>). The narrow top loop corresponds to northern summer, the wide bottom belly to winter.",
+        "edu-title": "Understanding the Mechanics of the Equation of Time",
+        "edu-p1": "The time we commonly use is <strong>Mean Solar Time</strong>, based on a fictitious Sun moving along the celestial equator at a perfectly constant speed, completing a day of exactly 24 hours. However, the Earth orbits the real Sun in non-uniform conditions. The true Sun, as seen from our planet, moves at variable speed and along a tilted path. The difference between <strong>Apparent Solar Time</strong> (indicated by sundials) and <strong>Mean Solar Time</strong> (our clocks) is called the <strong>Equation of Time (EoT)</strong>:",
+        "edu-formula1": "EoT = Apparent Solar Time (Sundial) - Mean Solar Time (Clock)",
+        "edu-p2": "This discrepancy fluctuates continuously throughout the year, accumulating a maximum advance of the sundial of about <strong>+14 minutes and 15 seconds</strong> (around November 3) and a maximum delay of about <strong>-16 minutes and 25 seconds</strong> (around February 12). The EoT is the result of the interaction of two independent phenomena:",
+        "edu-ecc-title": "The Eccentricity Component (Elliptical Orbit)",
+        "edu-ecc-desc": "According to Kepler's first law, the Earth's orbit is an ellipse. According to the second law (law of areas), the Earth moves faster when it is close to the Sun (perihelion, early January) and slower when it is far (afelio, early July). Consequently, the speed at which the Sun seems to move in the sky varies constantly. This component generates a sinusoidal variation with a period of 1 year and an amplitude of about ±7.7 minutes.",
+        "edu-obl-title": "The Obliquity Component (Axial Tilt)",
+        "edu-obl-desc": "Earth's equator is tilted by 23° 26' relative to its orbital plane (the ecliptic). Even if the Earth moved in a perfectly circular orbit at constant speed, the Sun would appear to move along the tilted ecliptic. To measure time, we must project this movement onto the celestial equator. Geometrically, at the equinoxes the Sun's motion is tilted and the projection runs slower; at the solstices the motion is parallel to the equator and the projection runs faster. This generates a double-frequency sinusoidal variation (6-month period) with an amplitude of about ±9.9 minutes.",
+        "edu-p3": "Summing these two components yields the characteristic asymmetrical curve of the Equation of Time. The daily variation of the EoT determines the lengthening or shortening of the <strong>true solar day</strong> (the time between two consecutive meridian passages of the Sun):",
+        "edu-formula2": "True Solar Day Duration = 24 hours + ΔD(eccentricity) + ΔD(obliquity)",
+        "edu-p4": "Due to these combined effects, the true solar day is almost never exactly 24 hours: near the winter and summer solstices, the solar day is about 20-30 seconds longer than the mean day, while at the equinoxes it is about 20 seconds shorter. Only by integrating these tiny daily variations day after day does the macroscopic discrepancy expressed by the Equation of Time accumulate.",
+        "footer-credits-text": "Developed by Roberto for Astrofili Ponte di Piave (<a href=\"http://www.astrofilipontedipiave.it\" target=\"_blank\" style=\"color: var(--color-ecc);\">www.astrofilipontedipiave.it</a>)",
+        "footer-links": "<a href=\"#main-title\" id=\"scroll-to-top\">Back to top</a> | Discover more about the Equation of Time and Kepler's laws."
+    }
+};
+
+/**
+ * Ritorna il nome del mese in base alla lingua attiva
+ */
+function getMonthName(monthIndex) {
+    if (state.language === 'en') {
+        const enMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        return enMonths[monthIndex];
+    }
+    return months[monthIndex].name;
+}
+
+/**
+ * Funzione client-side per applicare la lingua selezionata
+ */
+function setLanguage(lang) {
+    if (lang !== 'it' && lang !== 'en') lang = 'it';
+    state.language = lang;
+    
+    // Attiva/disattiva classe sui pulsanti bandierina
+    const btnIt = document.getElementById('lang-it');
+    const btnEn = document.getElementById('lang-en');
+    if (btnIt && btnEn) {
+        btnIt.classList.toggle('active', lang === 'it');
+        btnEn.classList.toggle('active', lang === 'en');
+    }
+    
+    // Traduzione di tutti gli elementi con data-i18n
+    const elements = document.querySelectorAll('[data-i18n]');
+    elements.forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key]) {
+            if (translations[lang][key].includes('<')) {
+                el.innerHTML = translations[lang][key];
+            } else {
+                el.textContent = translations[lang][key];
+            }
+        }
+    });
+    
+    // Traduzione del titolo della pagina
+    document.title = lang === 'en' ? "The Equation of Time - Astrofili Ponte di Piave" : "L'Equazione del Tempo - Astrofili Ponte di Piave";
+    
+    // Aggiorna specificamente il pulsante Play/Pausa
+    const playText = document.getElementById('play-text');
+    if (playText) {
+        if (state.isPlaying) {
+            playText.textContent = lang === 'en' ? "Pause" : "Pausa";
+        } else {
+            playText.textContent = lang === 'en' ? "Play" : "Avvia";
+        }
+    }
+    
+    // Ridisegna l'intera interfaccia con le nuove scritte dei canvas
+    updateUI();
+}
 
 // --- FONT E COLORI ESTRATTI DA style.css ---
 const colors = {
@@ -76,13 +239,13 @@ function dayToDate(day) {
             const dayOfMonth = d - accumulated;
             return {
                 day: dayOfMonth,
-                monthName: months[i].name,
+                monthName: getMonthName(i),
                 monthIndex: i
             };
         }
         accumulated += months[i].days;
     }
-    return { day: 31, monthName: "Dicembre", monthIndex: 11 };
+    return { day: 31, monthName: getMonthName(11), monthIndex: 11 };
 }
 
 /**
@@ -422,27 +585,27 @@ function drawOrbitQuadrant(canvas, data, orbitData, e) {
     ctx.fillStyle = colors.textMuted;
     ctx.textAlign = "left";
     
-    ctx.fillText("Vettore Velocità orbitale (Keplero 2)", 12, 22);
+    ctx.fillText(state.language === 'en' ? "Orbit Velocity Vector (Kepler 2)" : "Vettore Velocità orbitale (Keplero 2)", 12, 22);
     ctx.beginPath();
-    ctx.moveTo(215, 18); ctx.lineTo(235, 18);
+    ctx.moveTo(state.language === 'en' ? 200 : 215, 18); ctx.lineTo(state.language === 'en' ? 220 : 235, 18);
     ctx.strokeStyle = "#ff0055";
     ctx.lineWidth = 2.5;
     ctx.stroke();
     
     ctx.fillStyle = colors.textMuted;
-    ctx.fillText("Area spazzata (Legge delle Aree)", 12, 38);
+    ctx.fillText(state.language === 'en' ? "Swept area (Law of Areas)" : "Area spazzata (Legge delle Aree)", 12, 38);
     ctx.fillStyle = "rgba(0, 210, 255, 0.15)";
-    ctx.fillRect(215, 30, 20, 10);
+    ctx.fillRect(state.language === 'en' ? 200 : 215, 30, 20, 10);
     ctx.strokeStyle = "rgba(0, 210, 255, 0.4)";
     ctx.lineWidth = 1;
-    ctx.strokeRect(215, 30, 20, 10);
+    ctx.strokeRect(state.language === 'en' ? 200 : 215, 30, 20, 10);
     
     // Legenda valori numerici in basso a sinistra
     ctx.font = "10px JetBrains Mono";
     ctx.fillStyle = colors.textPrimary;
-    ctx.fillText(`Distanza r: ${orbitData.radius.toFixed(4)} UA`, 12, height - 38);
-    ctx.fillText(`Velocità v: ${(orbitData.velocity * 29.78).toFixed(2)} km/s`, 12, height - 24);
-    ctx.fillText(`Scarto Giorno (Ecc): ${data.deltaDayEcc >= 0 ? "+" : ""}${data.deltaDayEcc.toFixed(1)}s/giorno`, 12, height - 10);
+    ctx.fillText(`${state.language === 'en' ? "Distance r" : "Distanza r"}: ${orbitData.radius.toFixed(4)} ${state.language === 'en' ? "AU" : "UA"}`, 12, height - 38);
+    ctx.fillText(`${state.language === 'en' ? "Velocity v" : "Velocità v"}: ${(orbitData.velocity * 29.78).toFixed(2)} km/s`, 12, height - 24);
+    ctx.fillText(`${state.language === 'en' ? "Day Offset (Ecc)" : "Scarto Giorno (Ecc)"}: ${data.deltaDayEcc >= 0 ? "+" : ""}${data.deltaDayEcc.toFixed(1)}s/${state.language === 'en' ? "day" : "giorno"}`, 12, height - 10);
 }
 
 /**
@@ -772,30 +935,30 @@ function drawObliquityQuadrant(canvas, data, orbitData) {
     
     // Etichette dei Poli Celesti proiettati
     const labelTopP = project3D(0, R * 1.15, 0);
-    ctx.fillText("POLO NORD (PC)", labelTopP.x, labelTopP.y - 6);
+    ctx.fillText(state.language === 'en' ? "NORTH CELESTIAL POLE" : "POLO NORD (PC)", labelTopP.x, labelTopP.y - 6);
     
     // Annotazioni degli Equinozi e Solstizi principali
     const labelSpring = project3D(R, 0, 0);
     ctx.fillStyle = colors.textDark;
-    ctx.fillText("γ (21 MAR)", labelSpring.x + 12, labelSpring.y + 12);
+    ctx.fillText(state.language === 'en' ? "γ (MAR 21)" : "γ (21 MAR)", labelSpring.x + 12, labelSpring.y + 12);
     
     const labelSummer = project3D(0, R * Math.sin(eps), R * Math.cos(eps));
     ctx.fillStyle = colors.obl;
-    ctx.fillText("Solstizio Estate", labelSummer.x, labelSummer.y - 12);
+    ctx.fillText(state.language === 'en' ? "Summer Solstice" : "Solstizio Estate", labelSummer.x, labelSummer.y - 12);
 
     // Indicatori fisici nel quadrante
     ctx.font = "10px JetBrains Mono";
     ctx.fillStyle = colors.textPrimary;
     ctx.textAlign = "left";
-    ctx.fillText(`Inclinazione Asse: ${(state.obliquity * 180 / Math.PI).toFixed(2)}°`, 12, height - 38);
-    ctx.fillText(`Declinazione Solare: ${data.declination >= 0 ? "+" : ""}${data.declination.toFixed(2)}°`, 12, height - 24);
-    ctx.fillText(`Scarto Giorno (Obl): ${data.deltaDayObl >= 0 ? "+" : ""}${data.deltaDayObl.toFixed(1)}s/giorno`, 12, height - 10);
+    ctx.fillText(`${state.language === 'en' ? "Axial Tilt" : "Inclinazione Asse"}: ${(state.obliquity * 180 / Math.PI).toFixed(2)}°`, 12, height - 38);
+    ctx.fillText(`${state.language === 'en' ? "Solar Declination" : "Declinazione Solare"}: ${data.declination >= 0 ? "+" : ""}${data.declination.toFixed(2)}°`, 12, height - 24);
+    ctx.fillText(`${state.language === 'en' ? "Day Offset (Obl)" : "Scarto Giorno (Obl)"}: ${data.deltaDayObl >= 0 ? "+" : ""}${data.deltaDayObl.toFixed(1)}s/${state.language === 'en' ? "day" : "giorno"}`, 12, height - 10);
     
     // Suggerimento interattivo nell'angolo in alto a destra
     ctx.font = "9px Outfit";
     ctx.fillStyle = colors.textDark;
     ctx.textAlign = "right";
-    ctx.fillText("Trascina per RUOTARE | Rotella per ZOOM", width - 12, 22);
+    ctx.fillText(state.language === 'en' ? "Drag to ROTATE | Scroll to ZOOM" : "Trascina per RUOTARE | Rotella per ZOOM", width - 12, 22);
 
     // --- INSET: MERIDIANA A MEZZOGIORNO SOLARE ---
     const insetW = 120;
@@ -821,7 +984,7 @@ function drawObliquityQuadrant(canvas, data, orbitData) {
     ctx.font = "9px Outfit";
     ctx.fillStyle = colors.textMuted;
     ctx.textAlign = "center";
-    ctx.fillText("MERIDIANA (Ore 12:00)", inX + insetW / 2, inY + 14);
+    ctx.fillText(state.language === 'en' ? "SUNDIAL (12:00 Noon)" : "MERIDIANA (Ore 12:00)", inX + insetW / 2, inY + 14);
     
     // Dati fisici
     const latitude = 45.7; // Ponte di Piave
@@ -996,7 +1159,8 @@ function drawChartQuadrant(canvas, data) {
         
         // Etichetta abbreviata del mese
         ctx.fillStyle = colors.textMuted;
-        ctx.fillText(month.name.substring(0, 3).toUpperCase(), xMid, paddingTop + chartH + 15);
+        const monthName = getMonthName(idx);
+        ctx.fillText(monthName.substring(0, 3).toUpperCase(), xMid, paddingTop + chartH + 15);
         
         currentAccum += month.days;
     });
@@ -1058,13 +1222,13 @@ function drawChartQuadrant(canvas, data) {
     ctx.textAlign = "left";
     
     ctx.fillStyle = colors.ecc;
-    ctx.fillText(`● Eccentricità: ${data.eccentricityComponent >= 0 ? "+" : ""}${data.eccentricityComponent.toFixed(1)}m`, paddingLeft + 15, paddingTop + 12);
+    ctx.fillText(`${state.language === 'en' ? "● Eccentricity" : "● Eccentricità"}: ${data.eccentricityComponent >= 0 ? "+" : ""}${data.eccentricityComponent.toFixed(1)}m`, paddingLeft + 15, paddingTop + 12);
     
     ctx.fillStyle = colors.obl;
-    ctx.fillText(`● Obliquità: ${data.obliquityComponent >= 0 ? "+" : ""}${data.obliquityComponent.toFixed(1)}m`, paddingLeft + 140, paddingTop + 12);
+    ctx.fillText(`${state.language === 'en' ? "● Obliquity" : "● Obliquità"}: ${data.obliquityComponent >= 0 ? "+" : ""}${data.obliquityComponent.toFixed(1)}m`, paddingLeft + (state.language === 'en' ? 130 : 140), paddingTop + 12);
     
     ctx.fillStyle = colors.eot;
-    ctx.fillText(`● Totale EoT: ${data.totalEoT >= 0 ? "+" : ""}${data.totalEoT.toFixed(1)}m`, paddingLeft + 250, paddingTop + 12);
+    ctx.fillText(`${state.language === 'en' ? "● Total EoT" : "● Totale EoT"}: ${data.totalEoT >= 0 ? "+" : ""}${data.totalEoT.toFixed(1)}m`, paddingLeft + (state.language === 'en' ? 235 : 250), paddingTop + 12);
     
     // Salviamo le coordinate del grafico nello stato del canvas per consentire l'interattività via drag
     canvas.chartArea = {
@@ -1131,7 +1295,7 @@ function drawAnalemmaQuadrant(canvas, data) {
     ctx.font = "9px Outfit";
     ctx.fillStyle = colors.textMuted;
     ctx.textAlign = "right";
-    ctx.fillText("RITARDO ◀  EoT (minuti)  ▶ ANTICIPO", width - paddingRight, paddingTop + plotH - 6);
+    ctx.fillText(state.language === 'en' ? "DELAY ◀  EoT (minutes)  ▶ ADVANCE" : "RITARDO ◀  EoT (minuti)  ▶ ANTICIPO", width - paddingRight, paddingTop + plotH - 6);
     
     // 2. Disegniamo le griglie dell'asse Y (Declinazione Solare in gradi)
     const yLines = [-20, -10, 0, 10, 20];
@@ -1166,7 +1330,7 @@ function drawAnalemmaQuadrant(canvas, data) {
     ctx.font = "9px Outfit";
     ctx.fillStyle = colors.textMuted;
     ctx.textAlign = "center";
-    ctx.fillText("◀ SUD  Declinazione Solare (gradi)  NORD ▶", 0, 0);
+    ctx.fillText(state.language === 'en' ? "◀ SOUTH  Solar Declination (degrees)  NORTH ▶" : "◀ SUD  Declinazione Solare (gradi)  NORD ▶", 0, 0);
     ctx.restore();
     
     // 3. Tracciamento dell'Analemma completo (curva ad 8) per l'intero anno
@@ -1215,11 +1379,11 @@ function drawAnalemmaQuadrant(canvas, data) {
         ctx.fillText(label, x + offsetX, y + offsetY);
     };
     
-    drawMilestone(1, "1 GEN", "left", 6, 8);
-    drawMilestone(81, "γ (21 MAR)", "left", 8, -2);
-    drawMilestone(172, "SOL. ESTATE (21 GIU)", "center", 0, -8);
-    drawMilestone(264, "23 SET", "right", -8, 2);
-    drawMilestone(355, "SOL. INVERNO (21 DIC)", "center", 0, 10);
+    drawMilestone(1, state.language === 'en' ? "JAN 1" : "1 GEN", "left", 6, 8);
+    drawMilestone(81, state.language === 'en' ? "γ (MAR 21)" : "γ (21 MAR)", "left", 8, -2);
+    drawMilestone(172, state.language === 'en' ? "SUMMER SOL. (JUN 21)" : "SOL. ESTATE (21 GIU)", "center", 0, -8);
+    drawMilestone(264, state.language === 'en' ? "SEP 23" : "23 SET", "right", -8, 2);
+    drawMilestone(355, state.language === 'en' ? "WINTER SOL. (DEC 21)" : "SOL. INVERNO (21 DIC)", "center", 0, 10);
     
     // 5. Evidenziazione della POSIZIONE ATTUALE (Sole orbitante)
     const currentX = zeroX + (data.totalEoT / xMax) * (plotW / 2);
@@ -1260,7 +1424,11 @@ function updateUI() {
     
     // 2. Aggiornamento elementi di testo e grafici HTML
     const dateInfo = dayToDate(state.dayOfYear);
-    document.getElementById('day-display').textContent = `Giorno ${Math.floor(state.dayOfYear)} (${dateInfo.day} ${dateInfo.monthName})`;
+    if (state.language === 'en') {
+        document.getElementById('day-display').textContent = `Day ${Math.floor(state.dayOfYear)} (${dateInfo.monthName} ${dateInfo.day})`;
+    } else {
+        document.getElementById('day-display').textContent = `Giorno ${Math.floor(state.dayOfYear)} (${dateInfo.day} ${dateInfo.monthName})`;
+    }
     document.getElementById('day-slider').value = Math.floor(state.dayOfYear);
     document.getElementById('date-picker').value = dayToDatePickerVal(state.dayOfYear);
     
@@ -1282,7 +1450,7 @@ function updateUI() {
     dayLenMetric.className = `summary-value ${data.deltaDayTotal >= 0 ? "plus" : "minus"}`;
     
     // Distanza Terra-Sole ed Inclinazione
-    document.getElementById('val-distance').textContent = `${orbitData.radius.toFixed(4)} UA`;
+    document.getElementById('val-distance').textContent = `${orbitData.radius.toFixed(4)} ${state.language === 'en' ? "AU" : "UA"}`;
     document.getElementById('val-declination').textContent = `${data.declination >= 0 ? "+" : ""}${data.declination.toFixed(1)}°`;
     
     // Metriche dei singoli quadranti (Badges)
@@ -1540,6 +1708,14 @@ function initEventHandlers() {
     window.addEventListener('resize', () => {
         updateUI();
     });
+
+    // 9. Gestione cambio lingua (Internazionalizzazione)
+    const btnIt = document.getElementById('lang-it');
+    const btnEn = document.getElementById('lang-en');
+    if (btnIt && btnEn) {
+        btnIt.addEventListener('click', () => setLanguage('it'));
+        btnEn.addEventListener('click', () => setLanguage('en'));
+    }
 }
 
 // --- AVVIO DELL'APPLICAZIONE ---
@@ -1556,6 +1732,6 @@ window.addEventListener('DOMContentLoaded', () => {
     
     state.dayOfYear = currentDay >= 1 && currentDay <= 365 ? currentDay : 147;
     
-    // Inizializziamo l'interfaccia utente
-    updateUI();
+    // Inizializziamo l'interfaccia utente con la lingua di default (Italiano)
+    setLanguage('it');
 });

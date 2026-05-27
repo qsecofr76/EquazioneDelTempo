@@ -82,6 +82,10 @@ header {
     text-align: center;
     padding: 1.5rem 0 1rem;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 header::after {
@@ -94,6 +98,28 @@ header::after {
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
 }
 
+.header-title-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.2rem;
+    margin-bottom: 0.2rem;
+    flex-wrap: wrap;
+}
+
+.header-logo {
+    height: 60px;
+    width: auto;
+    filter: drop-shadow(0 0 8px rgba(0, 210, 255, 0.25));
+    border-radius: 8px;
+    transition: var(--transition-smooth);
+}
+
+.header-logo:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 15px rgba(0, 210, 255, 0.45));
+}
+
 h1 {
     font-size: 3rem;
     font-weight: 800;
@@ -101,7 +127,6 @@ h1 {
     background: linear-gradient(135deg, #ffffff 40%, var(--color-earth) 70%, var(--color-eot) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin-bottom: 0.5rem;
     text-shadow: 0 0 40px rgba(0, 210, 255, 0.1);
 }
 
@@ -111,6 +136,52 @@ header p {
     font-weight: 300;
     max-width: 800px;
     margin: 0 auto;
+}
+
+/* Language Switcher */
+.lang-switcher {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    gap: 0.5rem;
+    z-index: 100;
+}
+
+.lang-btn {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 1.2rem;
+    padding: 0.3rem 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.lang-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateY(-2px);
+}
+
+.lang-btn.active {
+    background: rgba(0, 210, 255, 0.15);
+    border-color: var(--color-earth);
+    box-shadow: 0 0 10px rgba(0, 210, 255, 0.25);
+}
+
+@media (max-width: 768px) {
+    .lang-switcher {
+        position: relative;
+        top: auto;
+        right: auto;
+        margin-bottom: 1rem;
+    }
+    h1 {
+        font-size: 2.2rem;
+    }
+    .header-logo {
+        height: 45px;
+    }
 }
 
 /* Control Panel Section */
