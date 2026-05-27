@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L'Equazione del Tempo - Astrofili Ponte di Piave</title>
+    
+    <!-- SEO Optimization -->
+    <meta name="description" content="Esplora l'Equazione del Tempo con questa simulazione 3D e 2D interattiva. Comprendi l'effetto dell'eccentricità orbitale (Keplero) e dell'obliquità dell'asse terrestre sulla durata del giorno solare.">
+    <meta name="keywords" content="Equazione del tempo, astronomia, Keplero, orbita terrestre, obliquità eclittica, analemma, fisica solare, simulazione interattiva">
+    <meta name="author" content="Roberto - Astrofili Ponte di Piave">
+    
+    <!-- Open Graph for Social Sharing -->
+    <meta property="og:title" content="L'Equazione del Tempo - Astrofili Ponte di Piave">
+    <meta property="og:description" content="Visualizza graficamente l'orbita ellittica, la proiezione dell'asse terrestre e l'analemma per comprendere la discrepanza tra tempo solare vero e tempo medio.">
+    <meta property="og:type" content="website">
+    
+    <!-- Styling -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        
+        <!-- Header -->
+        <header>
+            <h1 id="main-title">L'Equazione del Tempo</h1>
+            <p>Un viaggio interattivo nella meccanica celeste per comprendere perché i nostri orologi e le meridiane non segnano mai lo stesso tempo durante l'anno.</p>
+        </header>
+
+        <!-- Control Panel -->
+        <section class="control-panel" id="main-controls" aria-label="Pannello di controllo della data">
+            
+            <!-- Date Slider -->
+            <div class="slider-group">
+                <div class="slider-header">
+                    <label for="day-slider">Seleziona Giorno dell'Anno</label>
+                    <span class="slider-val" id="day-display">Giorno 147 (27 Maggio)</span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" id="day-slider" min="1" max="365" value="147" aria-valuemin="1" aria-valuemax="365" aria-valuenow="147">
+                </div>
+            </div>
+
+            <!-- Actions and Datepicker -->
+            <div class="actions-group">
+                
+                <!-- Play / Pause -->
+                <button class="btn-play" id="play-btn" aria-label="Avvia o metti in pausa la simulazione">
+                    <span class="play-icon" id="play-icon">▶</span> <span id="play-text">Avvia</span>
+                </button>
+                
+                <!-- Calendar Input -->
+                <div class="date-input-group">
+                    <label for="date-picker">Calendario:</label>
+                    <input type="date" id="date-picker" value="2026-05-27">
+                </div>
+
+                <!-- Simulation Speed -->
+                <div class="speed-control">
+                    <label for="speed-select">Velocità:</label>
+                    <select id="speed-select" class="speed-select">
+                        <option value="0.2">Lenta</option>
+                        <option value="0.5" selected>Normale</option>
+                        <option value="1">Veloce</option>
+                        <option value="2.5">Astronomica</option>
+                    </select>
+                </div>
+                
+                <!-- Orbit Mode (Didactic vs Real) -->
+                <div class="toggle-group" id="orbit-mode-toggle" aria-label="Modalità orbita terrestre">
+                    <button class="toggle-btn active" id="btn-mode-didactic" data-mode="didactic">Didattica (e = 0.25)</button>
+                    <button class="toggle-btn" id="btn-mode-real" data-mode="real">Reale (e = 0.017)</button>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Summary Metrics Bar -->
+        <section class="summary-panel" id="metrics-panel" aria-label="Metriche astronomiche in tempo reale">
+            
+            <div class="summary-card" id="card-metric-eot">
+                <span class="summary-label">Equazione del Tempo</span>
+                <span class="summary-value" id="val-eot">-- min -- s</span>
+            </div>
+            
+            <div class="summary-card" id="card-metric-daylen">
+                <span class="summary-label">Variazione Giorno Solare</span>
+                <span class="summary-value" id="val-daylen">-- s</span>
+            </div>
+            
+            <div class="summary-card" id="card-metric-dist">
+                <span class="summary-label">Distanza Terra-Sole</span>
+                <span class="summary-value" id="val-distance">-- UA</span>
+            </div>
+            
+            <div class="summary-card" id="card-metric-dec">
+                <span class="summary-label">Declinazione Solare</span>
+                <span class="summary-value" id="val-declination">--°</span>
+            </div>
+
+        </section>
+
+        <!-- Main Dashboard Grid -->
+        <main class="dashboard-grid" id="dashboard">
+            
+            <!-- Quadrant 1: Eccentricity & Orbit (Kepler) -->
+            <article class="card" id="card-orbit">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h2>1. Eccentricità dell'Orbita</h2>
+                        <span>Componente Ellittica (1ª e 2ª Legge di Keplero)</span>
+                    </div>
+                    <div class="badge-readout">
+                        <span class="badge-label">Variazione Giorno (Eccentricità)</span>
+                        <span class="badge-value" id="badge-val-ecc-day">-- s</span>
+                    </div>
+                </div>
+                <div class="canvas-container">
+                    <canvas id="canvas-orbit"></canvas>
+                    <div class="canvas-hint">Simulazione Orbitale Interattiva</div>
+                </div>
+                <div class="card-explainer">
+                    L'orbita terrestre è un'ellisse con il Sole in uno dei fuochi. Per la <span class="highlight-text">2ª Legge di Keplero</span>, la Terra accelera al perielio (inizio Gennaio) e rallenta all'afelio (inizio Luglio). La velocità orbitale variabile genera una variazione continua dell'angolo percorso al giorno (<span class="highlight-text">velocità angolare</span>), rendendo la durata del giorno solare dovuta all'orbita più lunga in inverno e più corta in estate (onda annuale di max ±8s).
+                </div>
+            </article>
+
+            <!-- Quadrant 2: Obliquity & Axial Tilt -->
+            <article class="card" id="card-obliquity">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h2>2. Obliquità dell'Asse</h2>
+                        <span>Componente Geometrica (Proiezione Eclittica)</span>
+                    </div>
+                    <div class="badge-readout">
+                        <span class="badge-label">Variazione Giorno (Obliquità)</span>
+                        <span class="badge-value" id="badge-val-obl-day">-- s</span>
+                    </div>
+                </div>
+                <div class="canvas-container">
+                    <canvas id="canvas-obliquity"></canvas>
+                </div>
+                <div class="card-explainer">
+                    L'asse terrestre è inclinato di <span class="highlight-text">23.44°</span> rispetto all'eclittica. Il Sole si muove lungo l'eclittica inclinata, ma noi misuriamo il tempo proiettando questo moto sull'equatore celeste. A causa dell'inclinazione, la proiezione corre più velocemente ai solstizi e più lentamente agli equinozi. Questo effetto geometrico produce una variazione della durata del giorno con <span class="highlight-text">periodo semestrale</span> (fino a ±20s).
+                </div>
+            </article>
+
+            <!-- Quadrant 3: Equation of Time Graph -->
+            <article class="card" id="card-chart">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h2>3. Curve dell'Equazione del Tempo</h2>
+                        <span>Grafico delle Componenti e della Risultante</span>
+                    </div>
+                    <div class="badge-readout">
+                        <span class="badge-label">Valore Totale</span>
+                        <span class="badge-value" id="badge-val-eot-tot">-- min</span>
+                    </div>
+                </div>
+                <div class="canvas-container">
+                    <canvas id="canvas-chart"></canvas>
+                    <div class="canvas-hint">Trascina o Clicca per cambiare data</div>
+                </div>
+                <div class="card-explainer">
+                    Il grafico mostra la decomposizione dell'Equazione del Tempo. La curva <span class="highlight-text" style="color: var(--color-ecc)">azzurra</span> rappresenta l'eccentricità (periodo annuale), la curva <span class="highlight-text" style="color: var(--color-obl)">viola</span> rappresenta l'obliquità (periodo semestrale). La curva <span class="highlight-text" style="color: var(--color-eot)">oro</span> è la loro somma algebrica: l'Equazione del Tempo totale. I quattro zeri avvengono il 15 aprile, 13 giugno, 1 settembre e 25 dicembre.
+                </div>
+            </article>
+
+            <!-- Quadrant 4: The Analemma -->
+            <article class="card" id="card-analemma">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h2>4. L'Analemma</h2>
+                        <span>La Figura a Otto nel Cielo</span>
+                    </div>
+                    <div class="badge-readout">
+                        <span class="badge-label">Posizione Attuale (X, Y)</span>
+                        <span class="badge-value" id="badge-val-analemma">-- m, --°</span>
+                    </div>
+                </div>
+                <div class="canvas-container">
+                    <canvas id="canvas-analemma"></canvas>
+                    <div class="canvas-hint">Mappa del percorso solare annuale</div>
+                </div>
+                <div class="card-explainer">
+                    L'analemma è la figura a "8" tracciata fotografando il Sole alla stessa ora media ogni giorno dell'anno. L'inclinazione dell'asse solleva e abbassa il Sole nel cielo (asse Y, <span class="highlight-text">Declinazione</span>), mentre l'Equazione del Tempo sposta il Sole in anticipo o in ritardo rispetto all'orario medio (asse X, <span class="highlight-text">Differenza temporale</span>). Il perno stretto in alto corrisponde all'estate boreale, la pancia ampia in basso all'inverno.
+                </div>
+            </article>
+
+        </main>
+
+        <!-- Comprehensive Scientific Section -->
+        <section class="educational-section" id="educational-content">
+            
+            <h3>Comprendere la Meccanica dell'Equazione del Tempo</h3>
+            
+            <div class="edu-grid">
+                
+                <div class="edu-col">
+                    <p>
+                        Il tempo da noi comunemente utilizzato è il <strong>Tempo Solare Medio</strong>, basato su un Sole fittizio che si muove lungo l'equatore celeste a velocità perfettamente costante, compiendo un giorno di esattamente 24 ore. Tuttavia, la Terra orbita attorno al Sole reale in condizioni non uniformi. Il Sole vero, visto dal nostro pianeta, si muove a velocità variabile e lungo una traiettoria inclinata. La differenza tra il <strong>Tempo Solare Vero</strong> (quello indicato dalle meridiane) e il <strong>Tempo Solare Medio</strong> (quello dei nostri orologi) prende il nome di <strong>Equazione del Tempo (EoT)</strong>:
+                    </p>
+                    
+                    <div class="edu-formula" id="formula-eot">
+                        EoT = Tempo Solare Apparente (Meridiana) - Tempo Solare Medio (Orologio)
+                    </div>
+                    
+                    <p>
+                        Questa discrepanza fluttua continuamente durante l'anno, accumulando un anticipo massimo della meridiana di circa <strong>+14 minuti e 15 secondi</strong> (intorno al 3 novembre) e un ritardo massimo di circa <strong>-16 minuti e 25 secondi</strong> (intorno al 12 febbraio). L'EoT è il risultato dell'interazione di due fenomeni indipendenti:
+                    </p>
+                    
+                    <div class="edu-list">
+                        <div class="edu-list-item">
+                            <span class="edu-bullet"></span>
+                            <div class="edu-list-item-content">
+                                <strong>La Componente di Eccentricità (Orbita Ellittica)</strong>
+                                <p>Secondo la prima legge di Keplero, l'orbita della Terra è un'ellisse. Secondo la seconda legge (legge delle aree), la Terra si muove più velocemente quando è vicina al Sole (perielio, all'inizio di gennaio) e più lentamente quando è lontana (afelio, all'inizio di luglio). Di conseguenza, la velocità con cui il Sole sembra spostarsi nel cielo varia costantemente. Questa componente genera una variazione sinusoidale con periodo di 1 anno e ampiezza di circa ±7.7 minuti.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="edu-col">
+                    <div class="edu-list">
+                        <div class="edu-list-item">
+                            <span class="edu-bullet"></span>
+                            <div class="edu-list-item-content">
+                                <strong>La Componente di Obliquità (Inclinazione dell'Asse)</strong>
+                                <p>L'equatore terrestre è inclinato di 23° 26' rispetto al piano della sua orbita (l'eclittica). Anche se la Terra si muovesse su un'orbita perfettamente circolare a velocità costante, il Sole sembrerebbe muoversi lungo l'eclittica inclinata. Per misurare il tempo, dobbiamo proiettare questo movimento sull'equatore celeste. Geometricamente, agli equinozi il moto del Sole è inclinato e la proiezione corre più lentamente; ai solstizi il moto è parallelo all'equatore e la proiezione corre più velocemente. Questo genera una variazione sinusoidale a frequenza doppia (periodo di 6 mesi) e ampiezza di circa ±9.9 minuti.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p>
+                        Sommando queste due componenti, si ottiene la curva asimmetrica caratteristica dell'Equazione del Tempo. La variazione giornaliera dell'EoT determina l'allungamento o l'accorciamento del <strong>giorno solare vero</strong> (il tempo compreso tra due passaggi consecutivi del Sole al meridiano):
+                    </p>
+
+                    <div class="edu-formula" id="formula-daylen">
+                        Durata Giorno Solare Vero = 24 ore + ΔD(eccentricità) + ΔD(obliquità)
+                    </div>
+
+                    <p>
+                        A causa di questi effetti combinati, il giorno solare vero non dura quasi mai esattamente 24 ore: nei pressi dei solstizi d'inverno e d'estate, il giorno solare è circa 20-30 secondi più lungo del giorno medio, mentre agli equinozi è circa 20 secondi più corto. Solo integrando giorno dopo giorno queste minuscole variazioni si accumula lo scarto macroscopico espresso dall'Equazione del Tempo.
+                    </p>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Footer Credits -->
+        <footer>
+            <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 10px;">
+                <img src="logo.png" alt="Astrofili Ponte di Piave Logo" style="height: 50px; border-radius: 5px;">
+                <p>Sviluppato da Roberto per Astrofili Ponte di Piave (<a href="http://www.astrofilipontedipiave.it" target="_blank" style="color: var(--color-ecc);">www.astrofilipontedipiave.it</a>)</p>
+            </div>
+            <p><a href="#main-title" id="scroll-to-top">Torna in alto</a> | Scopri di più sull'equazione del tempo e le leggi astronomiche di Keplero.</p>
+        </footer>
+
+    </div>
+
+    <!-- Application Script -->
+    <script src="app.js"></script>
+</body>
+</html>
